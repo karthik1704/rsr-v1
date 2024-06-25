@@ -9,8 +9,8 @@ from starlette import status
 
 from ..database import get_async_db
 from ..models.users import User
-from ..schemas.users import Token, UserBaseSchema
-from ..utils import create_access_token, verify_password
+from ..schemas.users import Token, UserBaseSchema, UserCreateSchema
+from ..utils import create_access_token, get_hashed_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 db_dep = Annotated[AsyncSession, Depends(get_async_db)]
@@ -74,6 +74,33 @@ async def get_token_for_user(user: UserLogin, db: db_dep):
         _user.email, _user.id,  timedelta(minutes=30)
     )
     return {"access_token": _token, "token_type": "bearer"}
+
+
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserCreateSchema, db: db_dep):
+    
+    
+    _user = user.model_dump()
+    
+    user_exists = await User.get_one(db, [User.email==_user.get('email')])
+    if  user_exists:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="User Alread Exists"
+        )
+
+    password =_user.pop('password')
+    password2 =_user.pop('password2')
+
+    if password != password2:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Password Didn't macth"
+        )
+    
+    new_user = User(**_user, password=get_hashed_password(password), is_active=True)
+
+    db.add(new_user)
+    await db.commit()
+
 
 
 # @router.post("/logout", status_code=status.HTTP_201_CREATED, response_model=UserLogoutResponse)

@@ -8,12 +8,8 @@ class UserBaseSchema(BaseModel):
     last_name:str
     email: EmailStr
     phone: str
-    is_active: bool
-    is_staff: bool
-    is_superuser: bool
+   
 
-    created_at: datetime
-    updated_at: datetime
 
 class UserListSchema(UserBaseSchema):
 
@@ -23,6 +19,10 @@ class UserListSchema(UserBaseSchema):
 
     created_at: datetime
     updated_at: datetime
+
+class UserCreateSchema(UserBaseSchema):
+    password:str
+    password2: str
 
 
 class Token(BaseModel):
