@@ -40,9 +40,9 @@ class User(Base, DefaultFieldsMixin):
         return _result.scalars().first()
 
     @classmethod
-    async def create_front_desk(cls, db: AsyncSession, desk):
+    async def create_user(cls, db: AsyncSession, desk):
         db.add(desk)
 
-    def update_front_desk(self, updated_data):
+    def update_user(self, updated_data):
         for field, value in updated_data.items():
             setattr(self, field, value)

@@ -1,5 +1,7 @@
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
+
+from pydantic import BaseModel, EmailStr
+
 
 class UserBaseSchema(BaseModel):
     first_name:str
@@ -21,3 +23,8 @@ class UserListSchema(UserBaseSchema):
 
     created_at: datetime
     updated_at: datetime
+
+
+class Token(BaseModel):
+    access_token:str
+    token_type: str
