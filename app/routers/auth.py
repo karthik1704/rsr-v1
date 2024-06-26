@@ -21,9 +21,9 @@ class UserLogin(BaseModel):
     password: str
 
 
-async def authenticate_user(email: str, password: str, db:db_dep):
-    user = await User.get_one(db, [User.email==email] )
-    
+async def authenticate_user(email: str, password: str, db: db_dep):
+    user = await User.get_one(db, [User.email == email])
+
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -37,15 +37,13 @@ async def login_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: db_dep,
 ):
-    user =await  authenticate_user(form_data.username, form_data.password, db)
+    user = await authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate user."
         )
-    
-    token = create_access_token(
-        user.email, user.id,  timedelta(minutes=30)
-    )
+
+    token = create_access_token(user.email, user.id, timedelta(minutes=30))
     response.set_cookie(
         key="access_token",
         value=token,
@@ -70,37 +68,33 @@ async def get_token_for_user(user: UserLogin, db: db_dep):
         )
 
     # TODO: add refresh token
-    _token = create_access_token(
-        _user.email, _user.id,  timedelta(minutes=30)
-    )
+    _token = create_access_token(_user.email, _user.id, timedelta(minutes=30))
     return {"access_token": _token, "token_type": "bearer"}
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserCreateSchema, db: db_dep):
-    
-    
+
     _user = user.model_dump()
-    
-    user_exists = await User.get_one(db, [User.email==_user.get('email')])
-    if  user_exists:
+
+    user_exists = await User.get_one(db, [User.email == _user.get("email")])
+    if user_exists:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User Alread Exists"
+            status_code=status.HTTP_409_FORBIDDEN, detail="User Alread Exists"
         )
 
-    password =_user.pop('password')
-    password2 =_user.pop('password2')
+    password = _user.pop("password")
+    password2 = _user.pop("password2")
 
     if password != password2:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Password Didn't macth"
+            status_code=status.HTTP_400_FORBIDDEN, detail="Password Didn't macth"
         )
-    
+
     new_user = User(**_user, password=get_hashed_password(password), is_active=True)
 
     db.add(new_user)
     await db.commit()
-
 
 
 # @router.post("/logout", status_code=status.HTTP_201_CREATED, response_model=UserLogoutResponse)
