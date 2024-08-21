@@ -12,6 +12,7 @@ origins = [
     "http://3.110.169.239:3000",
     "http://3.110.169.239",
     "http://13.201.194.87",
+    "http://rsrglobalresumebuilder.com",
 ]
 
 app.add_middleware(
