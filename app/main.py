@@ -13,6 +13,7 @@ origins = [
     "http://3.110.169.239",
     "http://13.201.194.87",
     # "http://rsrglobalresumebuilder.com",
+    "https://www.rsrglobalresumebuilder.com",
     "https://rsrglobalresumebuilder.com",
 ]
 
