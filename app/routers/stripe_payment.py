@@ -28,17 +28,18 @@ async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user
             currency=payment.currency
         )
         
-        db_payment = StripePayment(
-            amount=payment.amount,
-            currency=payment.currency,
-            status="pending",
-            stripe_payment_intent_id=intent.id
-        )
-        db.add(db_payment)
-        await db.commit()
-        await db.refresh(db_payment)
+        # db_payment = StripePayment(
+        #     amount=payment.amount,
+        #     currency=payment.currency,
+        #     status="pending",
+        #     stripe_payment_intent_id=intent.id
+        # )
+        # db.add(db_payment)
+        # await db.commit()
+        # await db.refresh(db_payment)
         
-        return {"clientSecret": intent.client_secret, "paymentId": db_payment.id}
+        # return {"clientSecret": intent.client_secret, "paymentId": db_payment.id}
+        return {"clientSecret": intent.client_secret, }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
