@@ -24,7 +24,7 @@ endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user: current_user_dep):
     try:
         intent = stripe.PaymentIntent.create(
-            amount=payment.amount,
+            amount=int(payment.amount),
             currency=payment.currency
         )
         
