@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
-from app.models.stripe import StripePayment
+from app.models.stripe_payment import StripePayment
 from app.models.users import User
 
 

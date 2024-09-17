@@ -10,7 +10,7 @@ from app.models import Base
 
 if TYPE_CHECKING:
     from app.models.resume import Resume
-    from app.models.stripe import StripePayment
+    from app.models.stripe_payment import StripePayment
 
 
 class User(Base, DefaultFieldsMixin):
