@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from sqlalchemy import DateTime, ForeignKey, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +7,10 @@ from sqlalchemy.orm import Mapped, joinedload, mapped_column, relationship
 
 from app.helpers.fields import DefaultFieldsMixin
 from app.models import Base
+
+if TYPE_CHECKING:
+    from app.models.resume import Resume
+    from app.models.stripe import StripePayment
 
 
 class User(Base, DefaultFieldsMixin):
@@ -27,6 +31,8 @@ class User(Base, DefaultFieldsMixin):
     is_staff: Mapped[bool] = mapped_column(default=False)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
+    stripe_payments: Mapped[List["StripePayment"]] = relationship(back_populates="user")
+    resumes: Mapped[List["Resume"]] = relationship(back_populates="user")
     @classmethod
     async def get_all(cls, db_session:AsyncSession, where_conditon:list[Any]):
         _stmt = select(cls).where(*where_conditon).order_by(desc(cls.id))
