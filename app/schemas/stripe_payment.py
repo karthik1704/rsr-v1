@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class PaymentCreate(BaseModel):
     # resume_id: int
 
-    amount: int
+    amount: float
     currency: str
 
 class PaymentUpdate(BaseModel):
