@@ -25,4 +25,4 @@ class Payment(BaseModel):
     stripe_payment_intent_id: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
