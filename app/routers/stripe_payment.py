@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import settings
 from app.dependencies.auth import get_current_user
-from app.models.stripe import StripePayment
-from app.schemas.stripe import PaymentCreate, PaymentUpdate
+from app.models.stripe_payment import StripePayment
+from app.schemas.stripe_payment import PaymentCreate, PaymentUpdate
 
 from ..database import get_async_db
 

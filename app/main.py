@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, resume, stripe, users
+from app.routers import auth, resume, stripe_payment, users
 
 app = FastAPI()
 
@@ -28,5 +28,5 @@ app.add_middleware(
 app.include_router(users.router)
 app.include_router(auth.router)
 app.include_router(resume.router)
-app.include_router(stripe.router)
+app.include_router(stripe_payment.router)
 
