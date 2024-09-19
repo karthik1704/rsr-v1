@@ -46,7 +46,7 @@ def create_refresh_token(
 
     else:
         expires_at = datetime.now(UTC) + timedelta(days=REFRESH_TOKEN_EXPIRE_MINUTES)
-    encode = {"sub": email, "id": user_id, "role": role}
+    encode = {"sub": email, "id": user_id, }
     encode.update({"exp": expires_at})
     encoded_jwt = jwt.encode(encode, JWT_SECRET_KEY, ALGORITHM)
     return encoded_jwt

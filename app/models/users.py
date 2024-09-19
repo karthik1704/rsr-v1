@@ -30,9 +30,11 @@ class User(Base, DefaultFieldsMixin):
     is_active: Mapped[bool] = mapped_column(default=False)
     is_staff: Mapped[bool] = mapped_column(default=False)
     is_superuser: Mapped[bool] = mapped_column(default=False)
+    expiry_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
 
     stripe_payments: Mapped[List["StripePayment"]] = relationship(back_populates="user")
     resumes: Mapped[List["Resume"]] = relationship(back_populates="user")
+
     @classmethod
     async def get_all(cls, db_session:AsyncSession, where_conditon:list[Any]):
         _stmt = select(cls).where(*where_conditon).order_by(desc(cls.id))
@@ -48,6 +50,16 @@ class User(Base, DefaultFieldsMixin):
     @classmethod
     async def create_user(cls, db: AsyncSession, desk):
         db.add(desk)
+
+    @classmethod
+    async def update(cls, db: AsyncSession, id: int, **kwargs):
+        user = await cls.get_one(db, [cls.id == id])
+        if user:
+            for key, value in kwargs.items():
+                setattr(user, key, value)
+            await db.commit()
+            await db.refresh(user)
+        return user
 
     def update_user(self, updated_data):
         for field, value in updated_data.items():

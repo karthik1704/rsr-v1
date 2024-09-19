@@ -54,7 +54,7 @@ async def login_access_token(
         domain="localhost",
     )
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer", "expiry_date":user.expiry_date}
 
 
 @router.post("/login", status_code=status.HTTP_200_OK)

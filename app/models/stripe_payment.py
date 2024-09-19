@@ -16,6 +16,7 @@ class StripePayment(Base):
     __tablename__ = "stripe_payments"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    payment_id: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=True)
     amount: Mapped[int] = mapped_column(nullable=False)
     currency: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False)
@@ -26,9 +27,8 @@ class StripePayment(Base):
     updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=func.now())
     
     # Additional fields that might be useful
-    customer_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), index=True)
-    resume_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("resumes.id"), index=True)
-    payment_method: Mapped[Optional[str]] = mapped_column(String)
+    user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("users.id"), index=True)
+    # payment_method: Mapped[Optional[str]] = mapped_column(String)
     # description: Mapped[Optional[str]] = mapped_column(String)
     # metadata: Mapped[Optional[str]] = mapped_column(String)  # JSON string to store additional info
     # refunded: Mapped[bool] = mapped_column(default=False)
@@ -36,7 +36,7 @@ class StripePayment(Base):
     # receipt_url: Mapped[Optional[str]] = mapped_column(String)
 
     user: Mapped[Optional["User"]] = relationship(back_populates="stripe_payments")
-    resume: Mapped[Optional["Resume"]] = relationship(back_populates="stripe_payments")
+    #resume: Mapped[Optional["Resume"]] = relationship(back_populates="stripe_payments")
 
     @classmethod
     async def create(cls, db: AsyncSession, **kwargs):
@@ -64,7 +64,7 @@ class StripePayment(Base):
 
     @classmethod
     async def update(cls, db: AsyncSession, payment_id: int, **kwargs):
-        payment = await cls.get(db, [cls.id == payment_id])
+        payment = await cls.get(db, [cls.stripe_payment_intent_id == payment_id])
         if payment:
             for key, value in kwargs.items():
                 setattr(payment, key, value)
@@ -73,8 +73,8 @@ class StripePayment(Base):
         return payment
 
     @classmethod
-    async def delete(cls, db: AsyncSession, payment_id: int):
-        payment = await cls.get(db, [cls.id == payment_id])
+    async def delete(cls, db: AsyncSession, id: int):
+        payment = await cls.get(db, [cls.id == id])
         if payment:
             await db.delete(payment)
             await db.commit()
