@@ -7,7 +7,7 @@ from starlette import status
 from app.database import get_async_db
 from app.dependencies.auth import get_current_user
 from app.models.users import User
-from app.schemas.users import UserBaseSchema
+from app.schemas.users import UserBaseSchema, UserDetailSchema
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -22,7 +22,7 @@ async def get_all_users(db:db_dep):
 
     return users
 
-@router.get("/me", status_code=status.HTTP_200_OK, response_model=Optional[UserBaseSchema])
+@router.get("/me", status_code=status.HTTP_200_OK, response_model=Optional[UserDetailSchema])
 async def get_current_login_user(db:db_dep, current_user:user_dep):
 
     user =await  User.get_one(db, [User.id == current_user.get('id')])

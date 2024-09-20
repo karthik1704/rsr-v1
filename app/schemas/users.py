@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
+from .stripe_payment import Payment
+
 
 class UserBaseSchema(BaseModel):
     first_name:str
@@ -10,7 +12,9 @@ class UserBaseSchema(BaseModel):
     email: EmailStr
     phone: str
    
-
+class UserDetailSchema(UserBaseSchema):
+    expiry_date: Optional[datetime] = None
+    # payment_success: Optional[Payment] = None
 
 class UserListSchema(UserBaseSchema):
 
