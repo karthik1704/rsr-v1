@@ -21,11 +21,25 @@ async def get_all_resumes(db: db_dep, current_user: current_user_dep):
 
 @router.get("/{resume_id}", response_model=schemas.Resume)
 async def get_resume(resume_id: int, db: db_dep, current_user: current_user_dep):
+
     return await Resume.get_one(db, where_conditions=[Resume.id == resume_id, Resume.user_id == current_user.get('id')])
 
 @router.post("/", response_model=schemas.Resume, status_code=status.HTTP_201_CREATED)
 async def create_resume(resume: schemas.ResumeCreate, db: db_dep, current_user: current_user_dep):
+    already_resume_exists = await Resume.get_one(db, where_conditions=[Resume.user_id==current_user['id'] ])
+    print(already_resume_exists)
+    if already_resume_exists is not None:
+        raise HTTPException(status_code=402, detail="Resume already Exists, 1 Resume per User can't create more")
+
     return await Resume.create(db, **resume.model_dump(), user_id=current_user['id'])
+
+@router.put("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def update_resume(resume_id: int,resume: schemas.ResumeUpdate, db: db_dep, current_user: current_user_dep):
+    db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user['id']])
+    if db_resume is None:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    
+    await db_resume.update(db, **resume.model_dump())
 
 @router.put("/{resume_id}/experiences", response_model=schemas.Resume)
 async def update_resume_experience(resume_id: int, experience: schemas.ExperienceUpdate, db: db_dep, current_user: current_user_dep):
@@ -99,6 +113,8 @@ async def delete_resume_education(resume_id: int, education_id: int, db: db_dep,
         if education.id == education_id:
             await education.delete(db)
             break
+
+
 
 
 

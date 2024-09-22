@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from sqlalchemy import DateTime, ForeignKey, desc, func, select
+from sqlalchemy import DateTime, ForeignKey, Integer, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, joinedload, mapped_column, relationship
+from sqlalchemy.orm import Mapped, foreign, joinedload, mapped_column, relationship
 
 from app.helpers.fields import DefaultFieldsMixin
 from app.models import Base
@@ -31,9 +31,17 @@ class User(Base, DefaultFieldsMixin):
     is_staff: Mapped[bool] = mapped_column(default=False)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     expiry_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    # payment_success_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("stripe_payments.id"))
 
     stripe_payments: Mapped[List["StripePayment"]] = relationship(back_populates="user")
     resumes: Mapped[List["Resume"]] = relationship(back_populates="user")
+    # payment_success: Mapped[Optional["StripePayment"]] = relationship(
+    #     "StripePayment",
+    #     primaryjoin=lambda: foreign(User.payment_success_id) == StripePayment.id,
+    #     post_update=True,
+    #     back_populates="user_payment_success"
+    # ) 
+
 
     @classmethod
     async def get_all(cls, db_session:AsyncSession, where_conditon:list[Any]):

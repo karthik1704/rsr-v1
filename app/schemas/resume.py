@@ -15,11 +15,14 @@ class ExperienceBase(BaseModel):
     about_company: Optional[str] = None
     responsibilities: str
 
+
 class ExperienceCreate(ExperienceBase):
     pass
 
+
 class ExperienceUpdate(ExperienceBase):
     id: Optional[int] = None
+
 
 class Experience(ExperienceBase):
     id: int
@@ -27,6 +30,7 @@ class Experience(ExperienceBase):
 
     class Config:
         orm_mode = True
+
 
 class EducationBase(BaseModel):
     title_of_qualification: str
@@ -36,11 +40,14 @@ class EducationBase(BaseModel):
     city: str
     country: str
 
+
 class EducationCreate(EducationBase):
     pass
 
+
 class EducationUpdate(EducationBase):
     id: Optional[int] = None
+
 
 class Education(EducationBase):
     id: int
@@ -49,13 +56,16 @@ class Education(EducationBase):
     class Config:
         orm_mode = True
 
+
 class LanguageSkillBase(BaseModel):
     language: str
     is_mother_tongue: bool = False
     proficiency_level: Optional[str] = None
 
+
 class LanguageSkillCreate(LanguageSkillBase):
     pass
+
 
 class LanguageSkill(LanguageSkillBase):
     id: int
@@ -64,13 +74,16 @@ class LanguageSkill(LanguageSkillBase):
     class Config:
         orm_mode = True
 
+
 class DrivingLicenseBase(BaseModel):
     license_type: str
     license_issued_date: date
     license_expiry_date: date
 
+
 class DrivingLicenseCreate(DrivingLicenseBase):
     pass
+
 
 class DrivingLicense(DrivingLicenseBase):
     id: int
@@ -79,6 +92,7 @@ class DrivingLicense(DrivingLicenseBase):
     class Config:
         orm_mode = True
 
+
 class TrainingAwardBase(BaseModel):
     title: str
     awarding_institute: str
@@ -86,8 +100,10 @@ class TrainingAwardBase(BaseModel):
     to_date: Optional[date] = None
     location: str
 
+
 class TrainingAwardCreate(TrainingAwardBase):
     pass
+
 
 class TrainingAward(TrainingAwardBase):
     id: int
@@ -96,13 +112,16 @@ class TrainingAward(TrainingAwardBase):
     class Config:
         orm_mode = True
 
+
 class OthersBase(BaseModel):
     sectiontitle: str
     title: str
     description: str
 
+
 class OthersCreate(OthersBase):
     pass
+
 
 class Others(OthersBase):
     id: int
@@ -111,34 +130,41 @@ class Others(OthersBase):
     class Config:
         orm_mode = True
 
+
 class ResumeBase(BaseModel):
-    resume_title: str
-    first_name: str
-    last_name: str
-    date_of_birth: date
-    nationality: str
-    address_line_1: str
+    resume_title: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
+    date_of_birth: Optional[date]
+    nationality: Optional[str]
+    address_line_1: Optional[str]
     address_line_2: Optional[str] = None
-    postal_code: str
-    city: str
-    country: str
-    email_address: EmailStr
-    contact_number: str
-    responsibilities: str
+    postal_code: Optional[str]
+    city: Optional[str]
+    country: Optional[str]
+    email_address: Optional[EmailStr]
+    contact_number: Optional[str]
+    responsibilities: Optional[str]
     referred_by: Optional[str] = "RSR Academy"
 
-class ResumeCreate(ResumeBase):
+
+class ResumeCreate(BaseModel):
+    resume_title: str
+
+
+class ResumeUpdate(ResumeBase):
     pass
+
 
 class Resume(ResumeBase):
     id: int
     user_id: int
-    experiences: List[Experience] = []
-    education: List[Education] = []
-    language_skills: List[LanguageSkill] = []
-    driving_license: List[DrivingLicense] = []
-    training_awards: List[TrainingAward] = []
-    others: List[Others] = []
+    experiences: Optional[List[Experience]] 
+    education: Optional[List[Education]] 
+    language_skills: Optional[List[LanguageSkill]] 
+    driving_license: Optional[List[DrivingLicense]] 
+    training_awards: Optional[List[TrainingAward]] 
+    others: Optional[List[Others]] 
 
     class Config:
         from_attributes = True

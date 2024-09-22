@@ -17,27 +17,27 @@ class Resume(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     resume_title: Mapped[str] 
 
-    first_name: Mapped[str]
-    last_name: Mapped[str]
-    date_of_birth: Mapped[date]
-    nationality: Mapped[str]
-    address_line_1: Mapped[str]
+    first_name: Mapped[Optional[str]]
+    last_name: Mapped[Optional[str]]
+    date_of_birth: Mapped[Optional[date]]
+    nationality: Mapped[Optional[str]]
+    address_line_1: Mapped[Optional[str]]
     address_line_2: Mapped[Optional[str]]
-    postal_code: Mapped[str]
-    city: Mapped[str]
-    country: Mapped[str]
-    email_address: Mapped[str]
-    contact_number: Mapped[str]
-    responsibilities: Mapped[str]
+    postal_code: Mapped[Optional[str]]
+    city: Mapped[Optional[str]]
+    country: Mapped[Optional[str]]
+    email_address: Mapped[Optional[str]]
+    contact_number: Mapped[Optional[str]]
+    responsibilities: Mapped[Optional[str]]
     referred_by: Mapped[Optional[str]]= mapped_column(default="RSR Academy")
 
     
-    experiences: Mapped[List["Experience"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
-    education: Mapped[List["Education"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
-    language_skills: Mapped[List["LanguageSkill"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
-    driving_license: Mapped[List["DrivingLicense"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
-    training_awards: Mapped[List["TrainingAward"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
-    others: Mapped[List["Others"]] = relationship(back_populates="resume", cascade="all, delete-orphan")
+    experiences: Mapped[List["Experience"]] = relationship(back_populates="resume", cascade="all, delete-orphan" , lazy='selectin')
+    education: Mapped[List["Education"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')
+    language_skills: Mapped[List["LanguageSkill"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
+    driving_license: Mapped[List["DrivingLicense"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
+    training_awards: Mapped[List["TrainingAward"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
+    others: Mapped[List["Others"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')
     # stripe_payments: Mapped[List["StripePayment"]] = relationship(back_populates="resume",)
     user: Mapped["User"] = relationship(back_populates="resumes")
 

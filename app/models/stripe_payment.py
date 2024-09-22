@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, foreign, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.models import Base
@@ -35,7 +35,13 @@ class StripePayment(Base):
     # refund_amount: Mapped[Optional[int]] = mapped_column()
     # receipt_url: Mapped[Optional[str]] = mapped_column(String)
 
-    user: Mapped[Optional["User"]] = relationship(back_populates="stripe_payments")
+    user: Mapped[Optional["User"]] = relationship(back_populates="stripe_payments", foreign_keys=[user_id])
+    # user_payment_success: Mapped[Optional["User"]] = relationship(
+    #     "User",
+    #     back_populates="payment_success",
+    #     primaryjoin=lambda: foreign(User.payment_success_id) == StripePayment.id,
+    #     post_update=True
+    # )
     #resume: Mapped[Optional["Resume"]] = relationship(back_populates="stripe_payments")
 
     @classmethod
