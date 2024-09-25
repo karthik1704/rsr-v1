@@ -175,6 +175,7 @@ class ResumeUpdate(ResumeBase):
 class Resume(ResumeBase):
     id: int
     user_id: int
+    resume_image: Optional[str]
     experiences: Optional[List[Experience]] 
     education: Optional[List[Education]] 
     language_skills: Optional[List[LanguageSkill]] 
