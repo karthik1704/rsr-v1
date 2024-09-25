@@ -59,12 +59,17 @@ class Education(EducationBase):
 
 class LanguageSkillBase(BaseModel):
     language: str
-    is_mother_tongue: bool = False
-    proficiency_level: Optional[str] = None
+    other_languages:Optional[str] =None
+    # is_mother_tongue: bool = False
+    # proficiency_level: Optional[str] = None
 
 
 class LanguageSkillCreate(LanguageSkillBase):
     pass
+
+
+class LanguageSkillUpdate(LanguageSkillBase):
+    id: Optional[int] = None
 
 
 class LanguageSkill(LanguageSkillBase):
@@ -83,6 +88,9 @@ class DrivingLicenseBase(BaseModel):
 
 class DrivingLicenseCreate(DrivingLicenseBase):
     pass
+
+class DrivingLicenseUpdate(DrivingLicenseBase):
+    id: Optional[int] = None
 
 
 class DrivingLicense(DrivingLicenseBase):
@@ -104,6 +112,10 @@ class TrainingAwardBase(BaseModel):
 class TrainingAwardCreate(TrainingAwardBase):
     pass
 
+class TrainingAwardUpdate(TrainingAwardBase):
+    id: Optional[int] = None
+
+
 
 class TrainingAward(TrainingAwardBase):
     id: int
@@ -121,6 +133,10 @@ class OthersBase(BaseModel):
 
 class OthersCreate(OthersBase):
     pass
+
+class OthersUpdate(OthersBase):
+    id: Optional[int] = None
+
 
 
 class Others(OthersBase):

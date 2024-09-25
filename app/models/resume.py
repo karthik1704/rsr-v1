@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any, List, Optional
 
-from sqlalchemy import ForeignKey, select
+from sqlalchemy import ForeignKey, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -16,7 +16,7 @@ class Resume(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     resume_title: Mapped[str] 
-
+    resume_image: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Add this line
     first_name: Mapped[Optional[str]]
     last_name: Mapped[Optional[str]]
     date_of_birth: Mapped[Optional[date]]
@@ -181,8 +181,9 @@ class LanguageSkill(Base):
     resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id", ondelete="CASCADE"))
 
     language: Mapped[str]
-    is_mother_tongue: Mapped[bool] = mapped_column(default=False)
-    proficiency_level: Mapped[Optional[str]]
+    other_languages:Mapped[Optional[str]]
+    # is_mother_tongue: Mapped[bool] = mapped_column(default=False)
+    # proficiency_level: Mapped[Optional[str]]
 
     resume: Mapped["Resume"] = relationship(back_populates="language_skills")
 

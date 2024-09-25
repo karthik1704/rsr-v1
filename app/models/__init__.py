@@ -5,6 +5,13 @@ class Base(DeclarativeBase):
     pass
 
     
-from .resume import Resume
+from .resume import (
+    DrivingLicense,
+    Education,
+    LanguageSkill,
+    Others,
+    Resume,
+    TrainingAward,
+)
 from .stripe_payment import StripePayment
 from .users import User
