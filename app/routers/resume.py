@@ -1,4 +1,5 @@
 import os
+from math import exp
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -50,26 +51,68 @@ async def update_resume(resume_id: int,resume: schemas.ResumeUpdate, db: db_dep,
     
     await db_resume.update(db, **resume.model_dump())
 
-@router.put("/{resume_id}/experiences", response_model=schemas.Resume)
-async def update_resume_experience(resume_id: int, experience: schemas.ExperienceUpdate, db: db_dep, current_user: current_user_dep):
+# @router.put("/{resume_id}/experiences", response_model=schemas.Resume)
+# async def update_resume_experience(resume_id: int, experience: schemas.ExperienceUpdate, db: db_dep, current_user: current_user_dep):
+#     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
+#     if db_resume is None:
+#         raise HTTPException(status_code=404, detail="Resume not found")
+    
+#     if experience.id is None:
+#         # Create new experience
+#         new_experience = Experience(**experience.model_dump(exclude={'id'}), resume_id=resume_id)
+#         db.add(new_experience)
+
+#     else:
+#         # Update existing experience
+#         for existing_experience in db_resume.experiences:
+#             if existing_experience.id == experience.id:
+#                 for key, value in experience.model_dump(exclude_unset=True).items():
+#                     setattr(existing_experience, key, value)
+#                 break
+#         else:
+#             raise HTTPException(status_code=404, detail="Experience not found")
+    
+#     await db.commit()
+#     await db.refresh(db_resume)
+#     return db_resume
+
+@router.put("/{resume_id}/experiences/multi/", response_model=schemas.Resume)
+async def update_resume_experience_multi(resume_id: int, data: schemas.ExperienceUpdateMulti, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
-    
-    if experience.id is None:
-        # Create new experience
-        new_experience = Experience(**experience.model_dump(exclude={'id'}), resume_id=resume_id)
-        db.add(new_experience)
+    experiences = data.experiences    
+    job_applied_for = data.job_applied_for
 
-    else:
-        # Update existing experience
-        for existing_experience in db_resume.experiences:
-            if existing_experience.id == experience.id:
-                for key, value in experience.model_dump(exclude_unset=True).items():
-                    setattr(existing_experience, key, value)
-                break
+    if job_applied_for is not None:
+        db_resume.job_applied_for = job_applied_for
+
+    if not experiences:
+        await db.commit()
+        await db.refresh(db_resume)
+        return db_resume
+    
+    incoming_experience_ids = {experience.id for experience in experiences if experience.id is not None}
+
+    # Delete experiences that are not in the incoming data
+    for existing_experience in db_resume.experiences:
+        if existing_experience.id not in incoming_experience_ids:
+            await existing_experience.delete(db)
+
+    for experience in experiences:
+        if experience.id is None:
+            # Create new experience
+            new_experience = Experience(**experience.model_dump(exclude={'id'}), resume_id=resume_id)
+            db.add(new_experience)
         else:
-            raise HTTPException(status_code=404, detail="Experience not found")
+            # Update existing experience
+            for existing_experience in db_resume.experiences:
+                if existing_experience.id == experience.id:
+                    for key, value in experience.model_dump(exclude_unset=True).items():
+                        setattr(existing_experience, key, value)
+                    break
+            else:
+                raise HTTPException(status_code=404, detail="Experience not found")
     
     await db.commit()
     await db.refresh(db_resume)
@@ -87,26 +130,65 @@ async def delete_resume_experience(resume_id: int, experience_id: int, db: db_de
             break
 
 
-@router.put("/{resume_id}/education", response_model=schemas.Resume)
-async def update_resume_education(resume_id: int, education: schemas.EducationUpdate, db: db_dep, current_user: current_user_dep):
+# @router.put("/{resume_id}/education", response_model=schemas.Resume)
+# async def update_resume_education(resume_id: int, education: schemas.EducationUpdate, db: db_dep, current_user: current_user_dep):
+#     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
+#     if db_resume is None:
+#         raise HTTPException(status_code=404, detail="Resume not found")
+    
+#     if education.id is None:
+#         # Create new education
+#         new_education = Education(**education.model_dump(exclude={'id'}), resume_id=resume_id)
+#         db.add(new_education) 
+
+#     else:
+#         # Update existing education
+#         for existing_education in db_resume.education:
+#             if existing_education.id == education.id:
+#                 for key, value in education.model_dump(exclude_unset=True).items():
+#                     setattr(existing_education, key, value)
+#                 break
+#         else:
+#             raise HTTPException(status_code=404, detail="Education not found")
+    
+#     await db.commit()
+#     await db.refresh(db_resume)
+#     return db_resume
+
+@router.put("/{resume_id}/education/multi/", response_model=schemas.Resume)
+async def update_resume_education_multi(resume_id: int, data: schemas.EducationUpdateMulti, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
     
-    if education.id is None:
-        # Create new education
-        new_education = Education(**education.model_dump(exclude={'id'}), resume_id=resume_id)
-        db.add(new_education) 
+    educations = data.educations
 
-    else:
-        # Update existing education
-        for existing_education in db_resume.education:
-            if existing_education.id == education.id:
-                for key, value in education.model_dump(exclude_unset=True).items():
-                    setattr(existing_education, key, value)
-                break
+    
+
+    if not educations:
+        raise HTTPException(status_code=400, detail="No educations provided")
+    
+    incoming_education_ids = {education.id for education in educations if education.id is not None}
+
+    # Delete educations that are not in the incoming data
+    for existing_education in db_resume.education:
+        if existing_education.id not in incoming_education_ids:
+            await existing_education.delete(db)
+
+    for education in educations:
+        if education.id is None:
+            # Create new education
+            new_education = Education(**education.model_dump(exclude={'id'}), resume_id=resume_id)
+            db.add(new_education)
         else:
-            raise HTTPException(status_code=404, detail="Education not found")
+            # Update existing education
+            for existing_education in db_resume.education:
+                if existing_education.id == education.id:
+                    for key, value in education.model_dump(exclude_unset=True).items():
+                        setattr(existing_education, key, value)
+                    break
+            else:
+                raise HTTPException(status_code=404, detail="Education not found")
     
     await db.commit()
     await db.refresh(db_resume)
@@ -136,14 +218,15 @@ async def update_resume_language_skill(resume_id: int, language_skill: schemas.L
         db.add(new_language_skill) 
 
     else:
-        # Update existing language skill
-        for existing_language_skill in db_resume.language_skills:
-            if existing_language_skill.id == language_skill.id:
-                for key, value in language_skill.model_dump(exclude_unset=True).items():
-                    setattr(existing_language_skill, key, value)
-                break
-        else:
+        print(language_skill.id)
+        db_language_skill = await db.execute(select(LanguageSkill).where(LanguageSkill.id == language_skill.id, LanguageSkill.resume_id == resume_id))
+        db_language_skill = db_language_skill.scalar_one_or_none()
+        
+        if db_language_skill is None:
             raise HTTPException(status_code=404, detail="Language skill not found")
+        
+        for key, value in language_skill.model_dump(exclude_unset=True).items():
+            setattr(db_language_skill, key, value)
     
     await db.commit()
     await db.refresh(db_resume)
@@ -188,6 +271,43 @@ async def update_resume_driving_license(resume_id: int, driving_license: schemas
     await db.refresh(db_resume)
     return db_resume
 
+@router.put("/{resume_id}/driving-license/multi/", response_model=schemas.Resume)
+async def update_resume_driving_license_multi(resume_id: int, data: schemas.DrivingLicenseUpdateMulti, db: db_dep, current_user: current_user_dep):
+        db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
+        if db_resume is None:
+            raise HTTPException(status_code=404, detail="Resume not found")
+        
+        driving_licenses = data.driving_licenses
+
+        if not driving_licenses:
+            raise HTTPException(status_code=400, detail="No driving licenses provided")
+        
+        incoming_driving_license_ids = {driving_license.id for driving_license in driving_licenses if driving_license.id is not None}
+
+        # Delete driving licenses that are not in the incoming data
+        for existing_driving_license in db_resume.driving_license:
+            if existing_driving_license.id not in incoming_driving_license_ids:
+                await existing_driving_license.delete(db)
+
+        for driving_license in driving_licenses:
+            if driving_license.id is None:
+                # Create new driving license
+                new_driving_license = DrivingLicense(**driving_license.model_dump(exclude={'id'}), resume_id=resume_id)
+                db.add(new_driving_license)
+            else:
+                # Update existing driving license
+                for existing_driving_license in db_resume.driving_license:
+                    if existing_driving_license.id == driving_license.id:
+                        for key, value in driving_license.model_dump(exclude_unset=True).items():
+                            setattr(existing_driving_license, key, value)
+                        break
+                else:
+                    raise HTTPException(status_code=404, detail="Driving license not found")
+        
+        await db.commit()
+        await db.refresh(db_resume)
+        return db_resume
+
 @router.delete("/{resume_id}/driving-license/{driving_license_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_driving_license(resume_id: int, driving_license_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
@@ -223,6 +343,43 @@ async def update_resume_training_award(resume_id: int, training_award: schemas.T
                 break
         else:
             raise HTTPException(status_code=404, detail="Training award not found")
+    
+    await db.commit()
+    await db.refresh(db_resume)
+    return db_resume
+
+@router.put("/{resume_id}/training-award/multi/", response_model=schemas.Resume)
+async def update_resume_training_award_multi(resume_id: int, data: schemas.TrainingAwardUpdateMulti, db: db_dep, current_user: current_user_dep):
+    db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
+    if db_resume is None:
+        raise HTTPException(status_code=404, detail="Resume not found")
+    
+    training_awards = data.training_awards
+
+    if not training_awards:
+        raise HTTPException(status_code=400, detail="No training awards provided")
+    
+    incoming_training_award_ids = {training_award.id for training_award in training_awards if training_award.id is not None}
+
+    # Delete training awards that are not in the incoming data
+    for existing_training_award in db_resume.training_awards:
+        if existing_training_award.id not in incoming_training_award_ids:
+            await existing_training_award.delete(db)
+
+    for training_award in training_awards:
+        if training_award.id is None:
+            # Create new training award
+            new_training_award = TrainingAward(**training_award.model_dump(exclude={'id'}), resume_id=resume_id)
+            db.add(new_training_award)
+        else:
+            # Update existing training award
+            for existing_training_award in db_resume.training_awards:
+                if existing_training_award.id == training_award.id:
+                    for key, value in training_award.model_dump(exclude_unset=True).items():
+                        setattr(existing_training_award, key, value)
+                    break
+            else:
+                raise HTTPException(status_code=404, detail="Training award not found")
     
     await db.commit()
     await db.refresh(db_resume)

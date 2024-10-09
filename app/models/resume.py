@@ -30,11 +30,11 @@ class Resume(Base):
     contact_number: Mapped[Optional[str]]
     responsibilities: Mapped[Optional[str]]
     referred_by: Mapped[Optional[str]]= mapped_column(default="RSR Academy")
-
+    job_applied_for: Mapped[Optional[str]]
     
     experiences: Mapped[List["Experience"]] = relationship(back_populates="resume", cascade="all, delete-orphan" , lazy='selectin')
     education: Mapped[List["Education"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')
-    language_skills: Mapped[List["LanguageSkill"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
+    language_skills: Mapped["LanguageSkill"] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
     driving_license: Mapped[List["DrivingLicense"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
     training_awards: Mapped[List["TrainingAward"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
     others: Mapped[List["Others"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')

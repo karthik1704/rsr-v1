@@ -1,7 +1,9 @@
 from datetime import date
 from typing import List, Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
+
+from app.models import Base
 
 
 class ExperienceBase(BaseModel):
@@ -15,21 +17,35 @@ class ExperienceBase(BaseModel):
     about_company: Optional[str] = None
     responsibilities: str
 
+    @field_validator('to_date', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 class ExperienceCreate(ExperienceBase):
     pass
 
 
+
 class ExperienceUpdate(ExperienceBase):
     id: Optional[int] = None
 
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
+class ExperienceUpdateMulti(BaseModel):
+    job_applied_for: str
+    experiences:Optional[List[ExperienceUpdate]]
 
 class Experience(ExperienceBase):
     id: int
     resume_id: int
 
-    class Config:
-        orm_mode = True
+  
 
 
 class EducationBase(BaseModel):
@@ -48,6 +64,14 @@ class EducationCreate(EducationBase):
 class EducationUpdate(EducationBase):
     id: Optional[int] = None
 
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
+class EducationUpdateMulti(BaseModel):
+    educations:List[EducationUpdate]
 
 class Education(EducationBase):
     id: int
@@ -71,13 +95,17 @@ class LanguageSkillCreate(LanguageSkillBase):
 class LanguageSkillUpdate(LanguageSkillBase):
     id: Optional[int] = None
 
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+
 
 class LanguageSkill(LanguageSkillBase):
     id: int
     resume_id: int
 
-    class Config:
-        orm_mode = True
 
 
 class DrivingLicenseBase(BaseModel):
@@ -92,13 +120,21 @@ class DrivingLicenseCreate(DrivingLicenseBase):
 class DrivingLicenseUpdate(DrivingLicenseBase):
     id: Optional[int] = None
 
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
+    
+class DrivingLicenseUpdateMulti(BaseModel):
+    driving_licenses:List[DrivingLicenseUpdate]
+
 
 class DrivingLicense(DrivingLicenseBase):
     id: int
     resume_id: int
 
-    class Config:
-        orm_mode = True
+  
 
 
 class TrainingAwardBase(BaseModel):
@@ -115,7 +151,14 @@ class TrainingAwardCreate(TrainingAwardBase):
 class TrainingAwardUpdate(TrainingAwardBase):
     id: Optional[int] = None
 
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
+class TrainingAwardUpdateMulti(BaseModel):
+    training_awards:List[TrainingAwardUpdate]
 
 class TrainingAward(TrainingAwardBase):
     id: int
@@ -136,6 +179,12 @@ class OthersCreate(OthersBase):
 
 class OthersUpdate(OthersBase):
     id: Optional[int] = None
+
+    @field_validator('id', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 
 
@@ -164,6 +213,7 @@ class ResumeBase(BaseModel):
     referred_by: Optional[str] = "RSR Academy"
 
 
+
 class ResumeCreate(BaseModel):
     resume_title: str
 
@@ -175,10 +225,11 @@ class ResumeUpdate(ResumeBase):
 class Resume(ResumeBase):
     id: int
     user_id: int
+    job_applied_for: Optional[str]
     resume_image: Optional[str]
     experiences: Optional[List[Experience]] 
     education: Optional[List[Education]] 
-    language_skills: Optional[List[LanguageSkill]] 
+    language_skills: Optional[LanguageSkill] 
     driving_license: Optional[List[DrivingLicense]] 
     training_awards: Optional[List[TrainingAward]] 
     others: Optional[List[Others]] 
