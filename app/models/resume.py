@@ -32,9 +32,9 @@ class Resume(Base):
     referred_by: Mapped[Optional[str]]= mapped_column(default="RSR Academy")
     job_applied_for: Mapped[Optional[str]]
     
-    experiences: Mapped[List["Experience"]] = relationship(back_populates="resume", cascade="all, delete-orphan" , lazy='selectin')
+    experiences: Mapped[List["Experience"]] = relationship(back_populates="resume", cascade="all, delete-orphan" , lazy='selectin', order_by="Experience.id.asc()")
     education: Mapped[List["Education"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')
-    language_skills: Mapped["LanguageSkill"] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
+    language_skills: Mapped["LanguageSkill"] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy="selectin",  uselist=False)
     driving_license: Mapped[List["DrivingLicense"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
     training_awards: Mapped[List["TrainingAward"]] = relationship(back_populates="resume", cascade="all, delete-orphan",  lazy='selectin')
     others: Mapped[List["Others"]] = relationship(back_populates="resume", cascade="all, delete-orphan", lazy='selectin')
@@ -178,7 +178,7 @@ class LanguageSkill(Base):
     __tablename__ = "language_skills"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id", ondelete="CASCADE"))
+    resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id", ondelete="CASCADE"), unique=True)
 
     language: Mapped[str]
     other_languages:Mapped[Optional[str]]

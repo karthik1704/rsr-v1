@@ -212,22 +212,20 @@ async def update_resume_language_skill(resume_id: int, language_skill: schemas.L
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
 
-    if language_skill.id is None:
+    if db_resume.language_skills is None:
         # Create new language skill
         new_language_skill = LanguageSkill(**language_skill.model_dump(exclude={'id'}), resume_id=resume_id)
-        db.add(new_language_skill) 
-
+        db.add(new_language_skill)
     else:
-        print(language_skill.id)
-        db_language_skill = await db.execute(select(LanguageSkill).where(LanguageSkill.id == language_skill.id, LanguageSkill.resume_id == resume_id))
+        db_language_skill = await db.execute(select(LanguageSkill).where(LanguageSkill.id == db_resume.language_skills.id, LanguageSkill.resume_id == resume_id))
         db_language_skill = db_language_skill.scalar_one_or_none()
-        
+
         if db_language_skill is None:
             raise HTTPException(status_code=404, detail="Language skill not found")
-        
+
         for key, value in language_skill.model_dump(exclude_unset=True).items():
             setattr(db_language_skill, key, value)
-    
+
     await db.commit()
     await db.refresh(db_resume)
     return db_resume
