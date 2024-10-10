@@ -402,6 +402,9 @@ async def update_resume_others(resume_id: int,  others: schemas.OthersUpdate, db
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
+
+    if others.sectiontitle is None:
+        raise HTTPException(status_code=400, detail="Section title is required")
     
     if others.id is None:
         # Create new training award
