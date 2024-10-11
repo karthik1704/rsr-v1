@@ -433,7 +433,7 @@ async def update_resume_others(resume_id: int,  others: schemas.OthersUpdate, db
 logger = logging.getLogger(__name__)
 
 @router.delete("/{resume_id}/others/{others_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_resume_others(resume_id: int, others_id: int, db: db_dep, current_user: current_user_dep):
+async def delete_resume_others(resume_id: int, others_id: int,  current_user: current_user_dep, db: db_dep):
     logger.info(f"Deleting 'others' with ID {others_id} from resume {resume_id} for user {current_user.get('id')}")
     
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
@@ -456,7 +456,7 @@ async def delete_resume_others(resume_id: int, others_id: int, db: db_dep, curre
 
 @router.delete("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume(resume_id: int, db: db_dep, current_user: current_user_dep):
-    db_resume = await Resume.get_one(db, [Resume.id == resume_id])
+    db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
 
