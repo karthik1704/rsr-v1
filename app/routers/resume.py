@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import uuid
@@ -403,6 +404,7 @@ async def delete_resume_training_award(resume_id: int, training_award_id: int, d
 
 @router.put("/{resume_id}/others/", response_model=schemas.Resume)
 async def update_resume_others(resume_id: int,  others: schemas.OthersUpdate, db: db_dep, current_user: current_user_dep):
+    
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
@@ -428,24 +430,32 @@ async def update_resume_others(resume_id: int,  others: schemas.OthersUpdate, db
     await db.refresh(db_resume)
     return db_resume
 
+logger = logging.getLogger(__name__)
+
 @router.delete("/{resume_id}/others/{others_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_others(resume_id: int, others_id: int, db: db_dep, current_user: current_user_dep):
+    logger.info(f"Deleting 'others' with ID {others_id} from resume {resume_id} for user {current_user.get('id')}")
+    
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
+        logger.warning(f"Resume with ID {resume_id} not found for user {current_user.get('id')}")
         raise HTTPException(status_code=404, detail="Resume not found")
-    
+
     for others in db_resume.others:
         if others.id == others_id:
             await others.delete(db)
+            logger.info(f"Successfully deleted 'others' with ID {others_id} from resume {resume_id}")
             break
     else:
+        logger.warning(f"'Others' with ID {others_id} not found in resume {resume_id}")
         raise HTTPException(status_code=404, detail="Others not found")
 
 
 
 
+
 @router.delete("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_resume(resume_id: int, db: db_dep):
+async def delete_resume(resume_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id])
     if db_resume is None:
         raise HTTPException(status_code=404, detail="Resume not found")
