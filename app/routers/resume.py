@@ -1,5 +1,8 @@
 import os
+import shutil
+import uuid
 from math import exp
+from pathlib import Path
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -232,16 +235,17 @@ async def update_resume_language_skill(resume_id: int, language_skill: schemas.L
 
 @router.delete("/{resume_id}/language-skills/{language_skill_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_language_skill(resume_id: int, language_skill_id: int, db: db_dep, current_user: current_user_dep):
-    db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
+    db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id') ])
     if db_resume is None:
-        raise HTTPException(status_code=404, detail="Resume not found")
+        raise HTTPException(status_code=404, detail="Resume skill not found")
     
-    for language_skill in db_resume.language_skills:
-        if language_skill.id == language_skill_id:
-            await language_skill.delete(db)
-            break
-    else:
+    language_skill = await LanguageSkill.get_one(db, [LanguageSkill.resume_id == resume_id, LanguageSkill.id == language_skill_id])
+    
+    if language_skill is None:
         raise HTTPException(status_code=404, detail="Language skill not found")
+
+    await language_skill.delete(db)
+
 
 
 @router.put("/{resume_id}/driving-license/", response_model=schemas.Resume)
@@ -449,15 +453,17 @@ async def delete_resume(resume_id: int, db: db_dep):
     await db_resume.delete(db)
     
 
-UPLOAD_DIRECTORY = "uploads"  # Directory to save uploaded images
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Ensure the upload directory exists
-os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
-
-@router.post("/upload-image/{resume_id}")
-async def upload_image(resume_id: int,  db: db_dep, current_user: current_user_dep, file: UploadFile = File(...),):
+@router.post("/upload-image/{resume_id}/")
+async def upload_image(
+    resume_id: int, 
+    db: db_dep, 
+    current_user: current_user_dep, 
+    file: UploadFile = File(...),
+):
     # Check if the file is an image
- 
     if file.content_type is None or not file.content_type.startswith('image/'):
         raise HTTPException(status_code=400, detail="File type not supported.")
 
@@ -468,22 +474,30 @@ async def upload_image(resume_id: int,  db: db_dep, current_user: current_user_d
 
     # Delete the existing image if it exists
     if resume.resume_image:
-        existing_image_path = resume.resume_image
-        if os.path.exists(existing_image_path):
-            os.remove(existing_image_path)  # Delete the existing image
+        existing_image_path = Path(resume.resume_image)
+        if existing_image_path.exists():
+            try:
+                os.remove(existing_image_path)  # Delete the existing image
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to delete existing image: {str(e)}")
+
+    # Generate a unique filename
+    unique_filename = f"{uuid.uuid4()}-{file.filename}"
+    file_location = UPLOAD_DIR / unique_filename
+
     # Save the new file
-    if file.filename is not None:
-        file_location = os.path.join(UPLOAD_DIRECTORY, file.filename)
-        print(file_location)
+    try:
         with open(file_location, "wb") as f:
-            f.write(await file.read())
+            shutil.copyfileobj(file.file, f)  # Save the file efficiently
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save the file: {str(e)}")
+    finally:
+        await file.close()  # Close the file to free up resources
 
     # Update the resume with the new image path
-    print(file_location)
-    resume.resume_image = os.path.normpath(file_location)  # Save the new image path in the resume
+    resume.resume_image = file_location.as_posix()  # Save the new image path in the resume
     await db.commit()
     await db.refresh(resume)
 
     return {"message": "Image uploaded successfully", "resume_image": resume.resume_image}
-
 
