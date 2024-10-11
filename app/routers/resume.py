@@ -474,13 +474,13 @@ async def upload_image(
 
     # Delete the existing image if it exists
     if resume.resume_image:
-        existing_image_path = Path(resume.resume_image)
+    # Convert the relative URL to an absolute path
+        existing_image_path = UPLOAD_DIR / Path(resume.resume_image).name  # Get the filename and append to UPLOAD_DIR
         if existing_image_path.exists():
             try:
                 os.remove(existing_image_path)  # Delete the existing image
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Failed to delete existing image: {str(e)}")
-
     # Generate a unique filename
     unique_filename = f"{uuid.uuid4()}-{file.filename}"
     file_location = UPLOAD_DIR / unique_filename
@@ -495,7 +495,7 @@ async def upload_image(
         await file.close()  # Close the file to free up resources
 
     # Update the resume with the new image path
-    resume.resume_image = file_location.as_posix()  # Save the new image path in the resume
+    resume.resume_image = f"/static/{unique_filename}" # Save the new image path in the resume
     await db.commit()
     await db.refresh(resume)
 

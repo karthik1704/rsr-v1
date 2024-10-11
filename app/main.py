@@ -1,5 +1,9 @@
+from pathlib import Path
+from tkinter import image_names
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.routers import auth, resume, stripe_payment, users
 
@@ -24,6 +28,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# serving images
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Serve the `uploads/` directory at the `/static` path
+app.mount("/static", StaticFiles(directory=UPLOAD_DIR), name="static")
+
 
 app.include_router(users.router)
 app.include_router(auth.router)
