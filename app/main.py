@@ -1,5 +1,4 @@
 from pathlib import Path
-from tkinter import image_names
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
