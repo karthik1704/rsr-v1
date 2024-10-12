@@ -432,7 +432,7 @@ async def update_resume_others(resume_id: int,  others: schemas.OthersUpdate, db
 
 logger = logging.getLogger(__name__)
 
-@router.delete("/{resume_id}/others/{others_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/others/{others_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_others(resume_id: int, others_id: int,  current_user: current_user_dep, db: db_dep):
     logger.info(f"Deleting 'others' with ID {others_id} from resume {resume_id} for user {current_user.get('id')}")
     
