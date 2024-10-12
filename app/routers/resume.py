@@ -122,7 +122,7 @@ async def update_resume_experience_multi(resume_id: int, data: schemas.Experienc
     await db.refresh(db_resume)
     return db_resume
 
-@router.delete("/{resume_id}/experiences/{experience_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/experiences/{experience_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_experience(resume_id: int, experience_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
@@ -198,7 +198,7 @@ async def update_resume_education_multi(resume_id: int, data: schemas.EducationU
     await db.refresh(db_resume)
     return db_resume
 
-@router.delete("/{resume_id}/education/{education_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/education/{education_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_education(resume_id: int, education_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
@@ -234,7 +234,7 @@ async def update_resume_language_skill(resume_id: int, language_skill: schemas.L
     await db.refresh(db_resume)
     return db_resume
 
-@router.delete("/{resume_id}/language-skills/{language_skill_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/language-skills/{language_skill_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_language_skill(resume_id: int, language_skill_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id') ])
     if db_resume is None:
@@ -311,7 +311,7 @@ async def update_resume_driving_license_multi(resume_id: int, data: schemas.Driv
         await db.refresh(db_resume)
         return db_resume
 
-@router.delete("/{resume_id}/driving-license/{driving_license_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/driving-license/{driving_license_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_driving_license(resume_id: int, driving_license_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
@@ -388,7 +388,7 @@ async def update_resume_training_award_multi(resume_id: int, data: schemas.Train
     await db.refresh(db_resume)
     return db_resume
 
-@router.delete("/{resume_id}/training-award/{training_award_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{resume_id}/training-award/{training_award_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_resume_training_award(resume_id: int, training_award_id: int, db: db_dep, current_user: current_user_dep):
     db_resume = await Resume.get_one(db, [Resume.id == resume_id, Resume.user_id == current_user.get('id')])
     if db_resume is None:
