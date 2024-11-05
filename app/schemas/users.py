@@ -14,6 +14,7 @@ class UserBaseSchema(BaseModel):
    
 class UserDetailSchema(UserBaseSchema):
     expiry_date: Optional[datetime] = None
+    created_at: Optional[datetime] = None
     # payment_success: Optional[Payment] = None
 
 class UserListSchema(UserBaseSchema):
