@@ -25,23 +25,28 @@ endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
 @router.post("/")
 async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user: current_user_dep):
+
+    user = await User.get_one(db, [User.id == current_user['id']])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
     try:
         intent = stripe.PaymentIntent.create(
             amount=int(payment.amount),
             currency="gbp",
+            receipt_email=user.email,
+            
             # payment_method_types=[
-            #    "card",  # Debit/Credit cards
-            #     # "bacs_debit",  # Direct debit (UK)
-            #     # "klarna",  # Buy Now, Pay Later
-            #     # "apple_pay",  # Apple Pay (handled as card)
-            #      # "google_pay",  # Google Pay (handled as card)
-            #     # "bank_transfer",  # Bank Transfers (via Open Banking)
+            #    "card",
             # ],
             # payment_method_types=["card", ],  # Any methods you want to support
             # confirmation_method="manual",
             metadata={
                 "user_id": current_user['id'],
-                "email": current_user['email']
+                "email": current_user['email'], 
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "description": f"{payment.amount} Payment for {user.first_name} {user.last_name} ",
             }
         )
 
@@ -59,7 +64,7 @@ async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user
         await db.commit()
         await db.refresh(db_payment)
 
-        return {"clientSecret": intent.client_secret, "paymentId": db_payment.payment_id}
+        return {"clientSecret": intent.client_secret, "paymentId": db_payment.stripe_payment_intent_id}
         # return {
         #     "clientSecret": intent.client_secret,
         # }
