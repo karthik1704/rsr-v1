@@ -80,7 +80,7 @@ async def create_user(user: UserCreateSchema, db: db_dep):
     user_exists = await User.get_one(db, [User.email == _user.get("email")])
     if user_exists:
         raise HTTPException(
-            status_code=status.HTTP_409_FORBIDDEN, detail="User Alread Exists"
+            status_code=status.HTTP_403_FORBIDDEN, detail="User Alread Exists"
         )
 
     password = _user.pop("password")
@@ -88,7 +88,7 @@ async def create_user(user: UserCreateSchema, db: db_dep):
 
     if password != password2:
         raise HTTPException(
-            status_code=status.HTTP_400_FORBIDDEN, detail="Password Didn't macth"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Password Didn't macth"
         )
 
     new_user = User(**_user, password=get_hashed_password(password), is_active=True)
