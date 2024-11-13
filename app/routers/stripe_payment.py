@@ -105,10 +105,10 @@ async def stripe_webhook(request: Request, db: db_dep):
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError:
         print("Invalid payload")
-        raise HTTPException(status_code=400, detail="Invalid payload")
+        raise HTTPException(status_code=200, detail="Invalid payload")
     except stripe.error.SignatureVerificationError as e:
         print(f"Invalid signature: {str(e)}")
-        raise HTTPException(status_code=400, detail=f"Invalid signature {str(endpoint_secret)}")
+        raise HTTPException(status_code=200, detail=f"Invalid signature {str(endpoint_secret)}")
 
     # Database update logic (Example: AsyncSession injection)
     if event["type"] == "payment_intent.succeeded":
