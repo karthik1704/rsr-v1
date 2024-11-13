@@ -2,7 +2,7 @@ import json
 from typing import Annotated, List
 
 import stripe
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,9 +44,6 @@ async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user
             metadata={
                 "user_id": current_user['id'],
                 "email": current_user['email'], 
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "description": f"{payment.amount} Payment for {user.first_name} {user.last_name} ",
             }
         )
 
@@ -93,15 +90,15 @@ async def update_payment_status(
     return {"message": "Payment status updated successfully"}
 
 
-@router.post("/webhook/")
+@router.post("/webhook/", status_code=status.HTTP_200_OK)
 async def stripe_webhook(request: Request, db: db_dep):
     payload = await request.body()
     # print(request.headers)
-    # print("Received payload:")
-    # print(json.dumps(json.loads(payload), indent=2))
+    print("Received payload:")
+    print(json.dumps(json.loads(payload), indent=2))
     sig_header = request.headers.get("stripe-signature")
     # print(sig_header)
-    # print('endpoint_secret', endpoint_secret)
+    print('endpoint_secret', endpoint_secret)
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
     except ValueError:
