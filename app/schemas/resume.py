@@ -78,7 +78,7 @@ class Education(EducationBase):
     resume_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class LanguageSkillBase(BaseModel):
@@ -165,7 +165,7 @@ class TrainingAward(TrainingAwardBase):
     resume_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class OthersBase(BaseModel):
@@ -193,7 +193,7 @@ class Others(OthersBase):
     resume_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ResumeBase(BaseModel):
