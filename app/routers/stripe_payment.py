@@ -29,6 +29,8 @@ async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user
     user = await User.get_one(db, [User.id == current_user['id']])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    print("web hook", endpoint_secret)
 
     try:
         intent = stripe.PaymentIntent.create(
