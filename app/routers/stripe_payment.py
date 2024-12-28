@@ -37,7 +37,7 @@ async def create_payment_intent(payment: PaymentCreate, db: db_dep, current_user
             amount=int(payment.amount),
             currency="gbp",
             receipt_email=user.email,
-            
+            description=f"Referred by: {user.referred_by if user.referred_by else 'RSR Global Refferer'}",
             # payment_method_types=[
             #    "card",
             # ],

@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from weakref import ref
 
 from pydantic import BaseModel, EmailStr
 
@@ -11,6 +12,7 @@ class UserBaseSchema(BaseModel):
     last_name:str
     email: EmailStr
     phone: str
+    referred_by: Optional[str] = None
    
 class UserDetailSchema(UserBaseSchema):
     expiry_date: Optional[datetime] = None

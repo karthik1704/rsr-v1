@@ -31,6 +31,7 @@ class User(Base, DefaultFieldsMixin):
     is_staff: Mapped[bool] = mapped_column(default=False)
     is_superuser: Mapped[bool] = mapped_column(default=False)
     expiry_date: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    referred_by: Mapped[Optional[str]] = mapped_column(default="RSR Global Refferer")
     # payment_success_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("stripe_payments.id"))
 
     stripe_payments: Mapped[List["StripePayment"]] = relationship(back_populates="user")

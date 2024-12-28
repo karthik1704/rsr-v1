@@ -1,0 +1,12 @@
+alembic
+alembic-postgresql-enum
+bcrypt
+email_validator
+fastapi
+passlib
+psycopg
+python-dotenv
+python-jose
+python-multipart
+SQLAlchemy
+stripe
