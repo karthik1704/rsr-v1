@@ -80,7 +80,7 @@ async def create_user(user: UserCreateSchema, db: db_dep):
     user_exists = await User.get_one(db, [User.email == _user.get("email")])
     if user_exists:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="User Alread Exists"
+            status_code=status.HTTP_403_FORBIDDEN, detail="User Already Exists"
         )
 
     password = _user.pop("password")
