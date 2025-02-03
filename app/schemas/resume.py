@@ -207,11 +207,16 @@ class ResumeBase(BaseModel):
     postal_code: Optional[str]
     city: Optional[str]
     country: Optional[str]
-    email_address: Optional[EmailStr]
+    email_address: Optional[EmailStr] = None
     contact_number: Optional[str]
     responsibilities: Optional[str]
     referred_by: Optional[str] = "RSR Academy"
 
+    @field_validator('email_address', mode='before')
+    def convert_empty_string_to_none(cls, v):
+        if v == "":
+            return None
+        return v
 
 
 class ResumeCreate(BaseModel):
